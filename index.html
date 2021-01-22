@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8"/>
+    <title>Муха</title>
+    <style>
+        #fly {
+            position: fixed;
+            top: 100px;
+            right: 100px;
+            transform: rotate(270deg);
+        }
+    </style>
+</head>
+<body>
+<div>
+    <audio src="URL"></audio>
+    <img id="fly" width="40" height="40" src="fly.png">
+</div>
+<script src="jquery-3.5.1.min.js"></script>
+<script src="lodash.js"></script>
+<script>
+  $(document).ready(function() {
+    let flyImage = $('#fly');
+    const flyWidth = flyImage[0].clientWidth;
+    const flyHeight = flyImage[0].clientHeight;
+    const screenWidth = $(document).width();
+    const screenHeight = $(document).height();
+
+    const timeout = 300;
+    const deltaCommon = 10;
+    const deltaQuick = 50;
+
+    let timerId;
+    let delta = deltaCommon;
+
+    let currentParams = {
+      top: flyImage.css('top'),
+      right: flyImage.css('right'),
+      transform: flyImage.css('transform'),
+    };
+
+    timerId = setTimeout(function replaceFly() {
+      if (timerId) {
+        clearTimeout(timerId);
+      }
+      currentParams = getNextParams();
+      flyImage.css({
+        top: currentParams.top,
+        right: currentParams.right,
+        transform: currentParams.transform,
+      });
+      timerId = setTimeout(replaceFly, timeout);
+    }, timeout);
+
+    function getNextParams() {
+      const {top, right, transform} = currentParams;
+      const topNumber = _.toNumber(_.replace(top, 'px', ''));
+      const rightNumber = _.toNumber(_.replace(right, 'px', ''));
+      // const deg = getRotate(transform);
+
+      const nextRight = _.clamp(Math.random() > 0.5
+          ? rightNumber + delta
+          : rightNumber - delta, 0, screenWidth - flyWidth);
+      const nextTop = _.clamp(Math.random() > 0.5
+          ? topNumber + delta
+          : topNumber - delta, 0, screenHeight - flyHeight);
+
+      const nextDeg = nextTop === topNumber
+          ? nextRight > rightNumber ? -120 : 180
+          : Math.atan((nextRight - rightNumber) / (nextTop - topNumber)) * 180 / Math.PI;
+
+      return {
+        top: nextTop + 'px',
+        right: nextRight + 'px',
+        transform: 'rotate(' + nextDeg + 'deg)',
+      };
+    }
+
+    // function getRotate(transform) {
+    //   let angle;
+    //   if (transform !== 'none') {
+    //     let values = transform.split('(')[1].split(')')[0].split(',').map(_.toNumber);
+    //     let a = values[0];
+    //     let b = values[1];
+    //     angle = a === 0
+    //         ? (b < 0 ? -90 : 90)
+    //         : Math.round(Math.atan2(b, a) * (180 / Math.PI));
+    //   } else {
+    //     angle = 0;
+    //   }
+    //
+    //   if (angle < 0) {
+    //     angle += 360;
+    //   }
+    //   return angle;
+    // }
+  });
+</script>
+</body>
+</html>
