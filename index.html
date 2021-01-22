@@ -28,8 +28,8 @@
     const screenHeight = $(document).height();
 
     const timeout = 300;
-    const deltaCommon = 10;
-    const deltaQuick = 50;
+    const deltaCommon = 20;
+    const deltaQuick = 70;
 
     let timerId;
     let delta = deltaCommon;
@@ -40,7 +40,7 @@
       transform: flyImage.css('transform'),
     };
 
-    timerId = setTimeout(function replaceFly() {
+    function replaceFly() {
       if (timerId) {
         clearTimeout(timerId);
       }
@@ -51,9 +51,12 @@
         transform: currentParams.transform,
       });
       timerId = setTimeout(replaceFly, timeout);
-    }, timeout);
+    }
+
+    timerId = setTimeout(replaceFly, timeout);
 
     function getNextParams() {
+      console.log(delta);
       const {top, right, transform} = currentParams;
       const topNumber = _.toNumber(_.replace(top, 'px', ''));
       const rightNumber = _.toNumber(_.replace(right, 'px', ''));
@@ -76,6 +79,17 @@
         transform: 'rotate(' + nextDeg + 'deg)',
       };
     }
+
+    function flyAway() {
+      delta = deltaQuick;
+      replaceFly();
+      if (delta === deltaQuick) {
+        delta = deltaCommon;
+      }
+    };
+
+    flyImage.mouseenter(flyAway);
+    flyImage.click(flyAway);
 
     // function getRotate(transform) {
     //   let angle;
